@@ -3,7 +3,7 @@ import serial
 
 # Configure the serial connections
 ser = serial.Serial(
-    port='/dev/ttyS3',
+    port='/dev/ttyS4',
     baudrate=57600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -18,6 +18,8 @@ def send(command):
 
 send("F434.225")
 send("M0")
+send("D")
+send("V")
 
 out=""
 while 1 :    
@@ -25,7 +27,15 @@ while 1 :
         char = ser.read(1).decode("utf-8") 
         if char == '\n':
             dt = datetime.now().strftime("%H:%M:%S")
-            print(dt + " " + out)
+
+            print('[LoRaGo] ' + out)
+
+            fields = out.split('=', 2)
+            if len(fields) == 2:
+                if fields[0] == 'Message':
+                    #send("Ttest")
+                    pass
+
             out = ""
         else:
             out += char
