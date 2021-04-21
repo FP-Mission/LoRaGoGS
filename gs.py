@@ -3,7 +3,7 @@ import serial
 
 # Configure the serial connections
 ser = serial.Serial(
-    port='/dev/ttyS4',
+    port='/dev/ttyS3',
     baudrate=57600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -13,7 +13,8 @@ ser = serial.Serial(
 ser.isOpen()
 
 def send(command):
-    print("~" + command)
+    dt = datetime.now().strftime("%H:%M:%S")
+    print('[' + dt + "] ~" + command)
     ser.write(("~" + command + "\r\n").encode())
 
 send("F434.225")
@@ -24,17 +25,25 @@ send("V")
 out=""
 while 1 :    
     while ser.inWaiting() > 0:
-        char = ser.read(1).decode("utf-8") 
+        char = ser.read(1)
+        try:
+            char = char.decode() # .decode("utf-8") 
+        except:
+            #print(char)
+            continue
         if char == '\n':
             dt = datetime.now().strftime("%H:%M:%S")
 
-            print('[LoRaGo] ' + out)
+            # print('[' + dt + '] LoRaGo - ' + out)
 
             fields = out.split('=', 2)
             if len(fields) == 2:
-                if fields[0] == 'Message':
+                if fields[0] == 'CurrentRSSI':
                     #send("Ttest")
                     pass
+                else:
+                    print('[' + dt + '] LoRaGo - ' + out)
+
 
             out = ""
         else:
